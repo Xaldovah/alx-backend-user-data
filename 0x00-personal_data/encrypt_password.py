@@ -6,7 +6,7 @@ This module function returns the log message obfuscated
 import bcrypt
 
 
-def hash_password(password):
+def hash_password(password: str) -> bytes:
     """
     Hashes a password using bcrypt with salt.
 
@@ -17,11 +17,11 @@ def hash_password(password):
         bytes: The hashed password.
     """
     salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode(), salt)
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed_password
 
 
-def is_valid(hashed_password, password):
+def is_valid(hashed_password: bytes, password: str) -> bool:
     """
     Validates a password against a hashed password using bcrypt.
 
@@ -33,4 +33,4 @@ def is_valid(hashed_password, password):
         bool: True if the password matches the hashed password,
         False otherwise.
     """
-    return bcrypt.checkpw(password.encode(), hashed_password)
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
