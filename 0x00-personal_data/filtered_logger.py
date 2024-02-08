@@ -10,6 +10,7 @@ from logging import StreamHandler
 import re
 import csv
 import mysql.connector
+import bcrypt
 
 
 rgx = {
