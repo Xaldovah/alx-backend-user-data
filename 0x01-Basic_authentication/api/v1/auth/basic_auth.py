@@ -128,7 +128,7 @@ class BasicAuth(Auth):
         if request is None:
             return None
 
-        authorization_header = request.header.get('Authorization')
+        authorization_header = request.headers.get('Authorization')
         if authorization_header is None:
             return None
 
