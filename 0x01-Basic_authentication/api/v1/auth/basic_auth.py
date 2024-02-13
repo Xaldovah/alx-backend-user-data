@@ -5,6 +5,7 @@ BasicAuth class for managing basic authentication.
 
 from api.v1.auth.auth import Auth
 from models.user import User
+from typing import TypeVar
 import base64
 
 
@@ -86,7 +87,7 @@ class BasicAuth(Auth):
         return user_email, user_password
 
     def user_object_from_credentials(
-            self, user_email: str, user_pwd: str) -> User:
+            self, user_email: str, user_pwd: str) -> TypeVar('User'):
         """
         Get the User instance based on email and password.
 
@@ -113,3 +114,39 @@ class BasicAuth(Auth):
                 return user
 
         return None
+
+    def current_user(self, request=None) -> TypeVar('User'):
+        """
+        Get the User instance for the request.
+
+        Args:
+            request (flask.Request): The Flask request object.
+
+        Returns:
+            User: The User instance if found and authenticated, else None.
+        """
+        if request is None:
+            return None
+
+        authorization_header = request.header.get('Authorization')
+        if authorization_header is None:
+            return None
+
+        base64_auth_header = self.extract_base64_authorization_header(
+                authorization_header)
+        if base64_auth_header is None:
+            return None
+
+        decoded_base64_auth_header = self.decode_base64_authorization_header(
+                base64_auth_header)
+        if decoded_base64_auth_header is None:
+            return None
+
+        user_email, user_pwd = self.extract_user_credentials(
+                decoded_base64_auth_header)
+
+        if user_email is None or user_pwd is None:
+            return None
+
+        return self.user_object_from_credentials(
+                user_email, user_pwd)
