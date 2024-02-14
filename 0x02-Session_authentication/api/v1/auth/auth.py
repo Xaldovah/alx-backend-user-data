@@ -6,6 +6,7 @@ authentication in an API
 
 from flask import request
 from typing import List
+import os
 
 
 class Auth:
@@ -64,3 +65,18 @@ class Auth:
         TypeVar('User'): The current user, or None if not authenticated.
         """
         return None
+
+    def session_cookie(self, request=None):
+        """ Returns a cookie value from a request.
+
+        Args:
+            request: The request object.
+
+        Returns:
+            str: The value of the cookie named SESSION_NAME from request.
+        """
+        if request is None:
+            return None
+
+        session_name = os.getenv('SESSION_NAME', '_my_session_id')
+        return request.cookies.get(session_name)
