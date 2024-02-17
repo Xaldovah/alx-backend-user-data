@@ -32,11 +32,10 @@ def login() -> Tuple[str, int]:
             return jsonify({"error": "no user found for this email"}), 404
 
         user = user[0]
-        if not user.is_valid_password(password):
+        if user.is_valid_password(password):
             from api.v1.app import auth
-            session_id = auth.create_session(user.id)
-            response_data = user.to_json()
-            response = jsonify(response_data)
+            session_id = auth.create_session(getattr(user, 'id'))
+            response = jsonify(user.to_json())
             response.set_cookie(os.getenv("SESSION_NAME"), session_id)
             return response
         return jsonify({"error": "wrong password"}), 401
@@ -45,14 +44,13 @@ def login() -> Tuple[str, int]:
 
 
 @app_views.route(
-        '/auth_session/logout', methods=['DELETE', 'GET'], strict_slashes=False)
+        '/auth_session/logout', methods=['DELETE'], strict_slashes=False)
 @app_views.route(
-        '/auth_session/logout/', methods=['DELETE', 'GET'], strict_slashes=False)
-def logout():
+        '/auth_session/logout/', methods=['DELETE'], strict_slashes=False)
+def logout() -> Tuple[str, int]:
     """ Handle user logout """
     from api.v1.app import auth
-    if request.method == 'DELETE':
-        if not auth.destroy_session(request):
-            abort(404)
-        return jsonify({}), 200
-    return jsonify({"error": "Method Not Allowed"}), 405
+    deleted = auth.destroy_session(request)
+    if not deleted:
+        abort(404)
+    return jsonify({}), 200

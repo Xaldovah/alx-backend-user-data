@@ -11,7 +11,6 @@ from models.user import User
 class SessionAuth(Auth):
     """ SessionAuth class.
     """
-
     user_id_by_session_id = {}
 
     def create_session(self, user_id: str = None) -> str:
@@ -57,3 +56,19 @@ class SessionAuth(Auth):
             if user_id:
                 return User.get(user_id)
         return None
+
+    def destroy_session(self, request=None):
+        """Destroys a user session(logout)"""
+        if request is None:
+            return False
+
+        session_id = self.session_cookie(request)
+        if session_id is None:
+            return False
+
+        user_id = self.user_id_for_session_id(session_id)
+        if user_id is None:
+            return False
+
+        self.user_id_by_session_id.pop(session_id, None)
+        return True
