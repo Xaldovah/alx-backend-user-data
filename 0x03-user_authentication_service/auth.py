@@ -5,6 +5,7 @@ import bcrypt
 from db import DB
 from user import Base, User
 
+
 def _hash_password(password: str) -> bytes:
     """
     Hashes the input password using bcrypt.
