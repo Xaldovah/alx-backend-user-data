@@ -2,6 +2,7 @@
 """takes in a password string arguments and returns bytes"""
 
 import bcrypt
+import uuid
 from db import DB
 from user import Base, User
 
@@ -20,6 +21,16 @@ def _hash_password(password: str) -> bytes:
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password_bytes, salt)
     return hashed
+
+
+def _generate_uuid() -> str:
+    """
+    Generate a new UUID string representation.
+
+    Returns:
+        str: A string representation of a new UUID.
+    """
+    return str(uuid.uuid4())
 
 
 class Auth:
@@ -70,3 +81,20 @@ class Auth:
             if bcrypt.checkpw(user_pass, hashed_password):
                 return True
         return False
+
+    def create_session(self, email: str) -> str:
+        """
+        Create a new session for the user.
+
+        Args:
+            email (str): The email address of the user.
+
+        Returns:
+            str: The session ID.
+        """
+        user = self._db.find_user_by(email=email)
+        if user:
+            session_id = _generate_uuid()
+            self._db.update_user(user.id, session_id=session_id)
+            return session_id
+        return None
