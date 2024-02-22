@@ -4,6 +4,7 @@
 
 from flask import Flask, request, jsonify, make_response, abort
 from auth import Auth
+from typing import Union
 
 app = Flask(__name__)
 Auth = Auth()
@@ -38,7 +39,7 @@ def users():
 
 
 @app.route("/sessions", methods=["POST"])
-def login():
+def login() -> Union[str, make_response]:
     """
     Log in the user.
 
