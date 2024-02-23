@@ -2,9 +2,8 @@
 """Create a flask app
 """
 
-from flask import Flask, request, jsonify, make_response, abort
+from flask import Flask, request, jsonify, make_response, abort, redirect
 from auth import Auth
-from typing import Union
 
 app = Flask(__name__)
 Auth = Auth()
@@ -39,7 +38,7 @@ def users():
 
 
 @app.route("/sessions", methods=["POST"])
-def login() -> Union[str, make_response]:
+def login():
     """
     Log in the user.
 
@@ -61,6 +60,31 @@ def login() -> Union[str, make_response]:
     response.set_cookie('session_id', session_id)
 
     return response
+
+
+@app.route('/sessions', methods=['DELETE'])
+def logout():
+    """
+    Log out the user by destroying the session
+    """
+    session_id = request.cookies.get('session_id')
+    user = Auth.get_user_from_session_id(session_id)
+    if user:
+        Auth.destroy_session(user.id)
+        return redirect('/')
+    else:
+        return abort(403)
+
+@app.route('/profile', methods=['GET'])
+def profile():
+    """Retrieve the user profile information
+    """
+    session_id = request.cookies.get('session_id')
+    user = Auth.get_user_from_session_id(session_id)
+    if user:
+        return jsonify({"email": user.email}), 200
+    else:
+        return abort(403)
 
 
 if __name__ == "__main__":

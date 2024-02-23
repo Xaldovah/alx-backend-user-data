@@ -98,3 +98,48 @@ class Auth:
             self._db.update_user(user.id, session_id=session_id)
             return session_id
         return None
+
+    def get_user_from_session_id(self, session_id: str) -> User:
+        """
+        Retrieve the user corresponding to the given session ID.
+        """
+        if session_id is None:
+            return None
+
+        return self._db.find_user_by(session_id=session_id)
+
+    def destroy_session(self, user_id: int) -> None:
+        """
+        Destroy the session of the user with the given user ID.
+        """
+        user = self._db.find_user_by(id=user_id)
+        if user:
+            user.session_id = None
+            self._db.commit()
+
+    def get_reset_password_token(self, email: str) -> str:
+        """
+        Generate a reset password token for the user with the given email.
+        """
+        user = self._db.find_user_by(email=email)
+        if not user:
+            raise ValueError
+
+        reset_token = str(uuid.uuid4())
+        user.reset_token = reset_token
+        self._db.commit()
+
+        return reset_token
+
+    def update_password(self, reset_token: str, new_password: str) -> None:
+        """
+        Update the password of the user corresponding to the reset token.
+        """
+        user = self._db.find_user_by(reset_token=reset_token)
+        if not user:
+            raise ValueError
+
+        hashed_password = _hash_password(new_password)
+        user.hashed_password = hashed_password
+        user.reset_token = None
+        self._db.commit()
