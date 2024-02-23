@@ -75,6 +75,7 @@ def logout():
     else:
         return abort(403)
 
+
 @app.route('/profile', methods=['GET'])
 def profile():
     """Retrieve the user profile information
@@ -85,6 +86,7 @@ def profile():
         return jsonify({"email": user.email}), 200
     else:
         return abort(403)
+
 
 @app.route('/reset_password', methods=['POST'])
 def reset_password():
@@ -97,6 +99,7 @@ def reset_password():
         return jsonify({"email": email, "reset_token": reset_token}), 200
     except ValueError:
         return abort(403)
+
 
 @app.route('/reset_password', methods=['PUT'])
 def update_password():
